@@ -65,10 +65,25 @@ class JWPlayer extends React.Component {
 
   createPlayer() {
     const { config, ref } = this;
-    const setupConfig = { ...window.jwDefaults, ...config };
-    const view = ref.current;
 
-    return this.playerLoadPromise.then(() => window.jwplayer(view.id).setup(setupConfig));
+    return this.playerLoadPromise.then(() => {
+      let retries = 20;
+      const intervalId = setInterval(() => {
+        const view = ref.current;
+        if (window.jwplayer(view.id)?.setup) {
+          clearInterval(intervalId);
+          const setupConfig = { ...window.jwDefaults, ...config };
+          window.jwplayer(view.id).setup(setupConfig);
+
+        } else if (retries <= 0) {
+          // Don't go on forever
+          clearInterval(intervalId);
+
+        } else {
+         retries--;
+        }
+      }, 200);
+    });
   }
 
   didOnEventsChange(nextProps) {
