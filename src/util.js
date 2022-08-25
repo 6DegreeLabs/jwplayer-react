@@ -22,25 +22,7 @@ export function loadPlayer(url) {
   if (!window.jwplayer && !url) throw new Error('jwplayer-react requires either a library prop, or a library script');
   if (window.jwplayer) return Promise.resolve();
 
-  return new Promise((res, rej) => {
-    createPlayerLoadPromise(url).then(() => {
-      // Makes sure window.jwplayer is populated before it gets used
-      let retries = 20;
-      const intervalId = setInterval(() => {
-        if (retries <= 0) {
-          // Don't go on forever
-          clearInterval(intervalId);
-          return rej();
-        }
-        retries--;
-
-        if (window.jwplayer) {
-          clearInterval(intervalId);
-          return res();
-        }
-      }, 200);
-    });
-  });
+  return createPlayerLoadPromise(url);
 }
 
 export function generateConfig(props) {
